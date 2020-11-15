@@ -1,0 +1,40 @@
+# Service declaration
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-executor-service
+  namespace: default
+  labels:
+    app: code-executor
+spec:
+  type: NodePort
+  selector:
+    app: code-executor
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# Deployment declaration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-executor-deployment
+  namespace: default
+  labels:
+    app: code-executor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: code-executor
+  template:
+    metadata:
+      labels:
+        app: code-executor
+    spec:
+      containers:
+        - name: code-executor
+          image: 174655635967.dkr.ecr.us-east-1.amazonaws.com/code-executor:latest
+          ports:
+            - containerPort: 80
