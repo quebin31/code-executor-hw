@@ -1,26 +1,29 @@
-aws_region="us-east-1"
-aws_register="174655635967.dkr.ecr.$(aws_region).amazonaws.com/code-executor"
+version := $(shell cat Cargo.toml | grep -E "^version = .*$$" | cut -d= -f2 | sed 's/[" ]//g')
+gcp_pid := "web-searcher-293217"
+gcp_zone := "us-central1-f"
+gcp_registry := "gcr.io/$(gcp_pid)"
 
-docker-image:
-	@docker build -t code-executor .
+build-image:
+	@docker build -t code-executor:$(version) .
 
 tag-image:
-	@docker tag code-executor:latest $(aws_register)/code-executor:latest
+	@docker tag code-executor:$(version) $(gcp_registry)/code-executor:$(version)
 
-push-image:
-	@docker push $(aws_register)/code-executor:latest
+push-image: 
+	@docker push $(gcp_registry)/code-executor:$(version)
 
 create-cluster:
-	@eksctl create cluster \
-		--name code-executor \
-		--version 1.18 \
-		--region $(aws_region) \
-		--fargate 
+	@gcloud container clusters create code-executor-cluster
 
-delete-cluster:
-	@eksctl delete cluster \
-		--region $(aws_region) \
-		--name code-executor
+delete-cluster: 
+	@gcloud container clusters delete code-executor-cluster
 
-deploy:
+deploy-service:
+	@kubectl apply -f deploy.yaml
 	@kubectl apply -f service.yaml
+
+undeploy-service:
+	@kubectl delete service code-executor-service
+
+
+
