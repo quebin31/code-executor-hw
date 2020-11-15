@@ -1,0 +1,22 @@
+# Deployment declaration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-executor-deployment
+  labels:
+    app: code-executor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: code-executor
+  template:
+    metadata:
+      labels:
+        app: code-executor
+    spec:
+      containers:
+        - name: code-executor
+          image: gcr.io/web-searcher-293217/code-executor:0.1.0
+          ports:
+            - containerPort: 80
