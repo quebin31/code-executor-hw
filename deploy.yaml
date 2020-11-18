@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: code-executor
-          image: gcr.io/code-executor-cloud/code-executor:0.1.1
+          image: gcr.io/code-executor-cloud/code-executor:0.1.2
           ports:
             - containerPort: 80
