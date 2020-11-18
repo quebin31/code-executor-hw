@@ -4,6 +4,8 @@ gcp_region := "southamerica-east1"
 gcp_regzone := "southamerica-east1-a"
 gcp_registry := "gcr.io/$(gcp_pid)"
 
+include .env
+
 build-image:
 	@docker build -t code-executor:$(version) .
 
@@ -39,7 +41,9 @@ apply-deploy:
 	@kubectl apply -f deploy.yaml
 
 apply-service:
+	@sed "s/\$$SERVICE_IP/$(SERVICE_IP)/" service.yaml.in > service.yaml
 	@kubectl apply -f service.yaml
+	@rm service.yaml
 
 undeploy-service:
 	@kubectl delete service code-executor-service
