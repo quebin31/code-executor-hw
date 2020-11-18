@@ -38,7 +38,7 @@ get-reserved-ip:
 	@gcloud compute addresses describe code-executor-ip --region $(gcp_region)
 
 apply-deploy:
-	@kubectl apply -f deploy.yaml
+	@kubectl apply -f deployment.yaml
 
 apply-service:
 	@sed "s/\$$SERVICE_IP/$(SERVICE_IP)/" service.yaml.in > service.yaml
@@ -47,6 +47,3 @@ apply-service:
 
 undeploy-service:
 	@kubectl delete service code-executor-service
-
-
-
