@@ -1,6 +1,7 @@
 pub mod error;
 pub mod exec;
 
+use actix_cors::Cors;
 use actix_web::middleware::Logger as ActixLogger;
 use actix_web::{post, web};
 use actix_web::{App, HttpResponse, HttpServer};
@@ -79,6 +80,7 @@ async fn main() -> Result<(), AnyError> {
 
     let app_factory = || {
         App::new()
+            .wrap(Cors::default())
             .wrap(ActixLogger::default())
             .service(exec_python)
             .default_service(web::to(not_found))

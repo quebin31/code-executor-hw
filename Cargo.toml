@@ -2,9 +2,10 @@
 authors = ["Kevin Del Castillo <quebin31@gmail.com>"]
 edition = "2018"
 name = "code-executor"
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
+actix-cors = "0.5.1"
 actix-rt = "1.1.1"
 actix-web = "3.2.0"
 anyhow = "1.0.34"
