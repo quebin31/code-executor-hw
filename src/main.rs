@@ -79,10 +79,7 @@ async fn main() -> Result<(), AnyError> {
     log::info!("Adress is {}", address);
 
     let app_factory = || {
-        let cors = Cors::default()
-            .allow_any_origin()
-            .allowed_methods(vec!["GET, POST"]);
-
+        let cors = Cors::permissive();
         App::new()
             .wrap(cors)
             .wrap(ActixLogger::default())
