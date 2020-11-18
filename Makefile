@@ -35,8 +35,10 @@ get-reserved-ip:
 	@gcloud config set project $(gcp_pid)
 	@gcloud compute addresses describe code-executor-ip --region $(gcp_region)
 
-deploy-service:
+apply-deploy:
 	@kubectl apply -f deploy.yaml
+
+apply-service:
 	@kubectl apply -f service.yaml
 
 undeploy-service:
