@@ -30,10 +30,13 @@ terra-apply:
 	@cd terraform; terraform apply
 	@cd terraform; gcloud container clusters get-credentials \
 		$(shell terraform output cluster) \
-		--refion $(shell terraform output region)
+		--region $(shell terraform output region)
+
+terra-refresh:
+	@cd terraform; terraform refresh
 
 terra-destroy:	
-	@terraform destroyt terraform
+	@cd terraform; terraform destroy
 
 # =================================================
 # Apply and delete deployment and service (manual)
