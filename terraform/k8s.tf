@@ -20,7 +20,7 @@ provider "kubernetes" {
 
 resource "kubernetes_deployment" "code_executor" {
   metadata {
-    name = "code-executor"
+    name = "code-executor-deploy"
     labels = {
       "app" = "code-executor"
     }
@@ -52,7 +52,7 @@ resource "kubernetes_deployment" "code_executor" {
 
           resources {
             limits {
-              cpu = "0.5"
+              cpu = "0.7"
             }
 
             requests {
@@ -67,7 +67,7 @@ resource "kubernetes_deployment" "code_executor" {
 
 resource "kubernetes_service" "code_executor" {
   metadata {
-    name = "code-executor"
+    name = "code-executor-svc"
   }
 
   spec {
@@ -86,18 +86,18 @@ resource "kubernetes_service" "code_executor" {
 
 resource "kubernetes_horizontal_pod_autoscaler" "code_executor" {
   metadata {
-    name = "code-executor"
+    name = "code-executor-scaler"
   }
 
   spec {
     scale_target_ref {
       kind = "Deployment"
-      name = "code-executor"
+      name = "code-executor-deploy"
     }
 
     min_replicas                      = 1
     max_replicas                      = 10
-    target_cpu_utilization_percentage = 50
+    target_cpu_utilization_percentage = 70
   }
 }
 
