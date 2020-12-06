@@ -28,9 +28,6 @@ terra-plan:
 
 terra-apply:
 	@cd terraform; terraform apply
-	@cd terraform; gcloud container clusters get-credentials \
-		$(shell terraform output cluster) \
-		--region $(shell terraform output region)
 
 terra-refresh:
 	@cd terraform; terraform refresh
