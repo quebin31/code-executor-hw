@@ -13,9 +13,9 @@ provider "kubernetes" {
   username = var.gke_username
   password = var.gke_password
 
-  client_certificate     = google_container_cluster.primary.master_auth.0.client_certificate
-  client_key             = google_container_cluster.primary.master_auth.0.client_key
-  cluster_ca_certificate = google_container_cluster.primary.master_auth.0.cluster_ca_certificate
+  client_certificate     = base64decode(google_container_cluster.primary.master_auth.0.client_certificate)
+  client_key             = base64decode(google_container_cluster.primary.master_auth.0.client_key)
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)
 }
 
 resource "kubernetes_deployment" "code_executor" {
@@ -80,8 +80,7 @@ resource "kubernetes_service" "code_executor" {
       target_port = 80
     }
 
-    type             = "LoadBalancer"
-    load_balancer_ip = google_compute_address.static.address
+    type = "LoadBalancer"
   }
 }
 

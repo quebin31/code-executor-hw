@@ -23,11 +23,6 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.10.0.0/24"
 }
 
-resource "google_compute_address" "static" {
-  name         = "${var.project_id}-address"
-  address_type = "EXTERNAL"
-}
-
 output "region" {
   value       = var.region
   description = "Region"
