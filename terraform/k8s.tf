@@ -63,6 +63,8 @@ resource "kubernetes_deployment" "code_executor" {
       }
     }
   }
+
+  depends_on = [google_container_node_pool.primary_nodes]
 }
 
 resource "kubernetes_service" "code_executor" {
@@ -82,6 +84,8 @@ resource "kubernetes_service" "code_executor" {
 
     type = "LoadBalancer"
   }
+
+  depends_on = [kubernetes_deployment.code_executor]
 }
 
 resource "kubernetes_horizontal_pod_autoscaler" "code_executor" {
@@ -99,6 +103,8 @@ resource "kubernetes_horizontal_pod_autoscaler" "code_executor" {
     max_replicas                      = 10
     target_cpu_utilization_percentage = 70
   }
+
+  depends_on = [kubernetes_deployment.code_executor]
 }
 
 output "loadbalancer_ip" {
