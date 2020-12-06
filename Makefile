@@ -36,31 +36,7 @@ terra-destroy:
 	@terraform destroyt terraform
 
 # =================================================
-# Reserve and unreserve static ip with `gcloud`
-# =================================================
-reserve-ip:
-	@cd terraform; gcloud compute addresses create code-executor-ip \
-		--project $(gcp_pid) \
-		--region $(shell terraform output region) \
-		--network $(shell terraform output network) \
-		--subnet $(shell terraform output subnet)
-
-unreserve-ip:
-	@cd terraform; gcloud compute addresses delete code-executor-ip \
-		--project $(gcp_pid) \
-		--region $(shell terraform output region) \
-		--network $(shell terraform output network) \
-		--subnet $(shell terraform output subnet)
-
-get-reserved-ip:
-	@cd terraform; gcloud compute addresses describe code-executor-ip \
-		--project $(gcp_pid) \
-		--region $(shell terraform output region) \
-		--network $(shell terraform output network) \
-		--subnet $(shell terraform output subnet)
-
-# =================================================
-# Apply and delete deployment and service
+# Apply and delete deployment and service (manual)
 # =================================================
 apply-deploy:
 	@kubectl apply -f k8s/deployment.yaml
