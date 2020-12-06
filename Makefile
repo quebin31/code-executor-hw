@@ -1,11 +1,13 @@
 version := $(shell cat Cargo.toml | grep -E "^version = .*$$" | cut -d= -f2 | sed 's/[" ]//g')
-gcp_pid := "code-executor-cloud"
-gcp_region := "southamerica-east1"
-gcp_regzone := "southamerica-east1-a"
+gcp_pid := "cloud-executor"
+gcp_region := "us-central1"
 gcp_registry := "gcr.io/$(gcp_pid)"
 
 include .env
 
+# =================================================
+# Build, tag and push the image to a registry
+# =================================================
 build-image:
 	@docker build -t code-executor:$(version) .
 
@@ -15,35 +17,61 @@ tag-image:
 push-image: 
 	@docker push $(gcp_registry)/code-executor:$(version)
 
-create-cluster:
-	@gcloud config set project $(gcp_pid)
-	@gcloud config set compute/zone $(gcp_regzone)
-	@gcloud container clusters create code-executor-cluster
+# =================================================
+# Terraform interface
+# =================================================
+terra-init:
+	@cd terraform; terraform init 
+	
+terra-plan:
+	@cd terraform; terraform plan
 
-delete-cluster: 
-	@gcloud config set project $(gcp_pid)
-	@gcloud config set compute/zone $(gcp_regzone)
-	@gcloud container clusters delete code-executor-cluster
+terra-apply:
+	@cd terraform; terraform apply
+	@cd terraform; gcloud container clusters get-credentials \
+		$(shell terraform output cluster) \
+		--refion $(shell terraform output region)
 
+terra-destroy:	
+	@terraform destroyt terraform
+
+# =================================================
+# Reserve and unreserve static ip with `gcloud`
+# =================================================
 reserve-ip:
-	@gcloud config set project $(gcp_pid)
-	@gcloud compute addresses create code-executor-ip --region $(gcp_region)
+	@cd terraform; gcloud compute addresses create code-executor-ip \
+		--project $(gcp_pid) \
+		--region $(shell terraform output region) \
+		--network $(shell terraform output network) \
+		--subnet $(shell terraform output subnet)
 
 unreserve-ip:
-	@gcloud config set project $(gcp_pid)
-	@gcloud compute addresses delete code-executor-ip --region $(gcp_region)
+	@cd terraform; gcloud compute addresses delete code-executor-ip \
+		--project $(gcp_pid) \
+		--region $(shell terraform output region) \
+		--network $(shell terraform output network) \
+		--subnet $(shell terraform output subnet)
 
 get-reserved-ip:
-	@gcloud config set project $(gcp_pid)
-	@gcloud compute addresses describe code-executor-ip --region $(gcp_region)
+	@cd terraform; gcloud compute addresses describe code-executor-ip \
+		--project $(gcp_pid) \
+		--region $(shell terraform output region) \
+		--network $(shell terraform output network) \
+		--subnet $(shell terraform output subnet)
 
+# =================================================
+# Apply and delete deployment and service
+# =================================================
 apply-deploy:
-	@kubectl apply -f deployment.yaml
+	@kubectl apply -f k8s/deployment.yaml
 
 apply-service:
-	@sed "s/\$$SERVICE_IP/$(SERVICE_IP)/" service.yaml.in > service.yaml
+	@sed "s/\$$SERVICE_IP/$(SERVICE_IP)/" k8s/service.in.yaml > service.yaml
 	@kubectl apply -f service.yaml
 	@rm service.yaml
 
-undeploy-service:
+del-service:
 	@kubectl delete service code-executor-service
+
+del-deploy:
+	@kubectl delete deployment code-executor-deployment
