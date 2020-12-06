@@ -95,8 +95,9 @@ resource "kubernetes_horizontal_pod_autoscaler" "code_executor" {
 
   spec {
     scale_target_ref {
-      kind = "Deployment"
-      name = "code-executor-deploy"
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = "code-executor-deploy"
     }
 
     min_replicas                      = 1
