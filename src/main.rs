@@ -76,7 +76,7 @@ async fn main() -> Result<(), AnyError> {
 
     let port = envmnt::get_or("PORT", "8000");
     let address = format!("0.0.0.0:{}", port);
-    log::info!("Adress is {}", address);
+    log::info!("Address is {}", address);
 
     let app_factory = || {
         let cors = Cors::permissive();
