@@ -1,9 +1,10 @@
+use cfg_if::cfg_if;
 use serde::{Deserialize, Serialize};
 
 use std::os::unix::process::ExitStatusExt;
 use std::process::{Command, Output};
 
-use crate::error::Error;
+use crate::Error;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -50,6 +51,13 @@ pub fn exec_req(req: &ExecRequest) -> Result<ExecResponse, Error> {
         }
     };
 
-    let output = Command::new("python").arg("-c").arg(code).output()?;
+    cfg_if! {
+        if #[cfg(feature = "lambda")] {
+            let output = Command::new("python3.8").arg("-c").arg(code).output()?;
+        } else {
+            let output = Command::new("python").arg("-c").arg(code).output()?;
+        }
+    }
+
     Ok(output.into())
 }
