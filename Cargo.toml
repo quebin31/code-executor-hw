@@ -2,20 +2,26 @@
 authors = ["Kevin Del Castillo <quebin31@gmail.com>"]
 edition = "2018"
 name = "code-executor"
-version = "0.2.1"
+version = "0.2.2"
 
 [dependencies]
-actix-cors = "0.5.3"
-actix-rt = "1.1.1"
-actix-web = "3.3.2"
+actix-cors = {version = "0.5.3", optional = true}
+actix-rt = {version = "1.1.1", optional = true}
+actix-web = {version = "3.3.2", optional = true}
 anyhow = "1.0.35"
-chrono = "0.4.19"
-dotenv = "0.15.0"
-envmnt = "0.8.4"
-fern = {version = "0.6.0", features = ["colored"]}
-lambda_http = "0.1.1"
-lambda_runtime = "0.2.1"
-log = "0.4.11"
+cfg-if = "1.0.0"
+chrono = {version = "0.4.19", optional = true}
+dotenv = {version = "0.15.0", optional = true}
+envmnt = {version = "0.8.4", optional = true}
+fern = {version = "0.6.0", features = ["colored"], optional = true}
+lambda_http = {version = "0.1.1", optional = true}
+lambda_runtime = {version = "0.2.1", optional = true}
+log = {version = "0.4.11", optional = true}
 serde = {version = "1.0.118", features = ["derive"]}
 serde_json = "1.0.60"
 thiserror = "1.0.22"
+
+[features]
+default = []
+lambda = ["lambda_http", "lambda_runtime"]
+standalone = ["actix-cors", "actix-rt", "actix-web", "chrono", "fern", "log", "dotenv", "envmnt"]

@@ -43,7 +43,7 @@ resource "kubernetes_deployment" "code_executor" {
 
       spec {
         container {
-          image = "gcr.io/cloud-executor/code-executor:0.1.3"
+          image = "gcr.io/cloud-executor/code-executor-standalone:0.2.2"
           name  = "code-executor"
 
           port {
