@@ -7,41 +7,32 @@ aws_registry := "768088100333.dkr.ecr.us-east-1.amazonaws.com"
 include .env
 
 # =================================================
-# Build, tag and push the image to a registry
+# Build, tag and push the standalone image to a 
+# registry
 # =================================================
-build-image:
-	@docker build -t code-executor:$(version) .
+build-standalone:
+	@docker build -t code-executor-standalone:$(version) -f Standalone.Dockerfile .
 
-tag-image-gcr:
-	@docker tag code-executor:$(version) $(gcp_registry)/code-executor:$(version)
+tag-standalone:
+	@docker tag code-executor-standalone:$(version) $(gcp_registry)/code-executor-standalone:$(version)
 
-push-image-gcr: 
-	@docker push $(gcp_registry)/code-executor:$(version)
-
-tag-image-ecr:
-	@docker tag code-executor:$(version) $(aws_registry)/code-executor:$(version)
-
-push-image-ecr:
-	@docker push $(aws_registry)/code-executor:$(version)
+push-standalone:
+	@docker push $(gcp_registry)/code-executor-standalone:$(version)
 
 
 # =================================================
-# Terraform interface
+# Build, tag and push the lambda image to a 
+# registry
 # =================================================
-terra-init:
-	@cd terraform; terraform init 
-	
-terra-plan:
-	@cd terraform; terraform plan
+build-lambda:
+	@docker build -t code-executor-lambda:$(version) -f Lambda.Dockerfile .
 
-terra-apply:
-	@cd terraform; terraform apply
+tag-lambda:
+	@docker tag code-executor-lambda:$(version) $(aws_registry)/code-executor-lambda:$(version)
 
-terra-refresh:
-	@cd terraform; terraform refresh
+push-lambda:
+	@docker push $(aws_registry)/code-executor-lambda:$(version)
 
-terra-destroy:	
-	@cd terraform; terraform destroy
 
 # =================================================
 # Apply and delete deployment and service (manual)
