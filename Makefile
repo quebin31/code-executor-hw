@@ -2,6 +2,7 @@ version := $(shell cat Cargo.toml | grep -E "^version = .*$$" | cut -d= -f2 | se
 gcp_pid := "cloud-executor"
 gcp_region := "us-central1"
 gcp_registry := "gcr.io/$(gcp_pid)"
+aws_registry := "768088100333.dkr.ecr.us-east-1.amazonaws.com"
 
 include .env
 
@@ -11,11 +12,18 @@ include .env
 build-image:
 	@docker build -t code-executor:$(version) .
 
-tag-image:
+tag-image-gcr:
 	@docker tag code-executor:$(version) $(gcp_registry)/code-executor:$(version)
 
-push-image: 
+push-image-gcr: 
 	@docker push $(gcp_registry)/code-executor:$(version)
+
+tag-image-ecr:
+	@docker tag code-executor:$(version) $(aws_registry)/code-executor:$(version)
+
+push-image-ecr:
+	@docker push $(aws_registry)/code-executor:$(version)
+
 
 # =================================================
 # Terraform interface
