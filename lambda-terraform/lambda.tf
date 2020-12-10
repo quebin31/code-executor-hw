@@ -35,10 +35,6 @@ resource "aws_lambda_function" "code_executor" {
   image_uri     = "768088100333.dkr.ecr.us-east-1.amazonaws.com/code-executor-lambda:0.2.2"
   function_name = "CodeExecutorLambda"
   role          = aws_iam_role.iam_for_lambda.arn
-
-  image_config {
-    command = ["--lambda"]
-  }
 }
 
 
