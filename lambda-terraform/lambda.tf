@@ -32,7 +32,7 @@ EOF
 
 resource "aws_lambda_function" "code_executor" {
   package_type  = "Image"
-  image_uri     = "768088100333.dkr.ecr.us-east-1.amazonaws.com/code-executor:0.2.0"
+  image_uri     = "768088100333.dkr.ecr.us-east-1.amazonaws.com/code-executor:0.2.1"
   function_name = "CodeExecutorLambda"
   role          = aws_iam_role.iam_for_lambda.arn
   runtime       = "provided"
