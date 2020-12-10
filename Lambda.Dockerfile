@@ -23,3 +23,5 @@ RUN yum install -y amazon-linux-extras && \
     yum clean metadata && \
     yum install -y python3.8
 COPY --from=build /app/target/release/lambda ${LAMBDA_RUNTIME_DIR}/bootstrap
+# No handler, bootstrap includes everything
+CMD [ "" ] 
