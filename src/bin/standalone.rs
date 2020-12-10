@@ -1,6 +1,3 @@
-#[cfg(not(feature = "standalone"))]
-compile_error!("Feature `standalone` should be enabled to build this binary");
-
 use actix_cors::Cors;
 use actix_web::middleware::Logger as ActixLogger;
 use actix_web::{post, web};

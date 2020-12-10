@@ -1,6 +1,3 @@
-#[cfg(not(feature = "lambda"))]
-compile_error!("Feature `lambda` should be enabled to compile this binary");
-
 use anyhow::Result as AnyResult;
 use code_executor::exec::{self, ExecRequest};
 use lambda_http::{lambda, Body, IntoResponse, Request};

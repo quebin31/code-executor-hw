@@ -4,6 +4,14 @@ edition = "2018"
 name = "code-executor"
 version = "0.2.2"
 
+[[bin]]
+name = "lambda"
+required-features = ["lambda"]
+
+[[bin]]
+name = "standalone"
+required-features = ["standalone"]
+
 [dependencies]
 actix-cors = {version = "0.5.3", optional = true}
 actix-rt = {version = "1.1.1", optional = true}
