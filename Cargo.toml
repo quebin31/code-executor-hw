@@ -2,7 +2,7 @@
 authors = ["Kevin Del Castillo <quebin31@gmail.com>"]
 edition = "2018"
 name = "code-executor"
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies]
 actix-cors = "0.5.3"
@@ -13,6 +13,7 @@ chrono = "0.4.19"
 dotenv = "0.15.0"
 envmnt = "0.8.4"
 fern = {version = "0.6.0", features = ["colored"]}
+lambda_http = "0.1.1"
 lambda_runtime = "0.2.1"
 log = "0.4.11"
 serde = {version = "1.0.118", features = ["derive"]}

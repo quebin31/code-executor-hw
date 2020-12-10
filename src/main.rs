@@ -8,10 +8,11 @@ use actix_web::{App, HttpResponse, HttpServer};
 use anyhow::Error as AnyError;
 use fern::colors::{Color, ColoredLevelConfig};
 use fern::Dispatch;
-use lambda_runtime::{error::HandlerError, lambda, Context};
+use lambda_http::{lambda, Body, IntoResponse, Request};
+use lambda_runtime::{error::HandlerError, Context};
 use serde_json::json;
 
-use crate::exec::{ExecRequest, ExecResponse};
+use crate::exec::ExecRequest;
 
 async fn not_found() -> HttpResponse {
     HttpResponse::NotFound().json(json!({
@@ -31,14 +32,20 @@ async fn exec_python(req: web::Json<ExecRequest>) -> HttpResponse {
     }
 }
 
-fn lambda_handler(req: ExecRequest, _c: Context) -> Result<ExecResponse, HandlerError> {
-    match exec::exec_req(&req) {
-        Ok(res) => Ok(res),
-        Err(e) => {
-            let msg = e.to_string();
-            Err(HandlerError::from(msg.as_str()))
+fn lambda_exec(req: Request, _c: Context) -> Result<impl IntoResponse, HandlerError> {
+    let res = match req.body() {
+        Body::Text(text) => {
+            let exec_req: ExecRequest = serde_json::from_str(&text)?;
+            match exec::exec_req(&exec_req) {
+                Ok(res) => serde_json::to_value(res)?,
+                Err(e) => json!({ "error_type": "internal", "message": e.to_string() }),
+            }
         }
-    }
+
+        _ => json!({ "error_type": "bad_request", "message": "Invalid body" }),
+    };
+
+    Ok(res)
 }
 
 #[actix_rt::main]
@@ -47,7 +54,7 @@ async fn main() -> Result<(), AnyError> {
     let lambda = matches!(args.get(1).map(|s| s.as_str()), Some("--lambda"));
 
     if lambda {
-        lambda!(lambda_handler);
+        lambda!(lambda_exec);
     } else {
         dotenv::dotenv().ok();
 
@@ -98,49 +105,4 @@ async fn main() -> Result<(), AnyError> {
     }
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::exec::{ExecCode, ExecRequest, ExecResponse};
-    use lambda_runtime::Context;
-
-    #[test]
-    fn test_lambda_handler() {
-        let expected_response = ExecResponse {
-            stdout: "Hola\n".to_string(),
-            stderr: "".to_string(),
-            code: Some(0),
-            signal: None,
-        };
-
-        let lambda_context = Context {
-            aws_request_id: "0123456789".to_string(),
-            function_name: "test_function_name".to_string(),
-            memory_limit_in_mb: 128,
-            function_version: "$LATEST".to_string(),
-            invoked_function_arn: "arn:aws:lambda".to_string(),
-            xray_trace_id: Some("0987654321".to_string()),
-            client_context: Option::default(),
-            identity: Option::default(),
-            log_stream_name: "logStreamName".to_string(),
-            log_group_name: "logGroupName".to_string(),
-            deadline: 0,
-        };
-
-        let lambda_request = ExecRequest {
-            code: ExecCode::Line("print(\"Hola\")".to_string()),
-        };
-
-        // Check the result is ok
-        let result = super::lambda_handler(lambda_request, lambda_context);
-        assert_eq!(result.is_err(), false, "Error: {}", result.err().unwrap());
-
-        // Confirm the expected values in result
-        let value = result.ok().unwrap();
-        assert_eq!(value.stdout, expected_response.stdout);
-        assert_eq!(value.stderr, expected_response.stderr);
-        assert_eq!(value.code, expected_response.code);
-        assert_eq!(value.signal, expected_response.signal);
-    }
 }
