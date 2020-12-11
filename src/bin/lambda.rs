@@ -1,26 +1,25 @@
 use anyhow::Result as AnyResult;
 use code_executor::exec::{self, ExecRequest};
+use code_executor::{handler_error, Error};
 use lambda_http::{lambda, Body, IntoResponse, Request};
 use lambda_runtime::{error::HandlerError, Context};
-use serde_json::json;
+use serde_json::{self as json};
 
-fn lambda_handler(req: Request, _c: Context) -> Result<impl IntoResponse, HandlerError> {
+fn handler(req: Request, _: Context) -> Result<impl IntoResponse, HandlerError> {
     let res = match req.body() {
         Body::Text(text) => {
-            let exec_req: ExecRequest = serde_json::from_str(&text)?;
-            match exec::exec_req(&exec_req) {
-                Ok(res) => serde_json::to_value(res)?,
-                Err(e) => json!({ "error_type": "internal", "message": e.to_string() }),
-            }
+            let exec_req: ExecRequest = json::from_str(&text)?;
+            let exec_res = exec::exec(&exec_req).map_err(handler_error)?;
+            json::to_value(exec_res)?
         }
 
-        _ => json!({ "error_type": "bad_request", "message": "Invalid body" }),
+        _ => return Err(handler_error(Error::InvalidBody)),
     };
 
     Ok(res)
 }
 
 fn main() -> AnyResult<()> {
-    lambda!(lambda_handler);
+    lambda!(handler);
     Ok(())
 }
