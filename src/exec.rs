@@ -37,7 +37,7 @@ impl From<Output> for ExecResponse {
     }
 }
 
-pub fn exec_req(req: &ExecRequest) -> Result<ExecResponse, Error> {
+pub fn exec(req: &ExecRequest) -> Result<ExecResponse, Error> {
     let code = match &req.code {
         ExecCode::Line(line) => line.to_owned(),
         ExecCode::Multi(lines) => {
@@ -53,9 +53,9 @@ pub fn exec_req(req: &ExecRequest) -> Result<ExecResponse, Error> {
 
     cfg_if! {
         if #[cfg(feature = "lambda")] {
-            let output = Command::new("python3.8").arg("-c").arg(code).output()?;
+            let output = Command::new("/usr/bin/python3.8").arg("-c").arg(code).output()?;
         } else {
-            let output = Command::new("python").arg("-c").arg(code).output()?;
+            let output = Command::new("/usr/bin/python").arg("-c").arg(code).output()?;
         }
     }
 

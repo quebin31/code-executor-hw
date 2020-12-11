@@ -17,7 +17,7 @@ async fn not_found() -> HttpResponse {
 
 #[post("/")]
 async fn exec_python(req: web::Json<ExecRequest>) -> HttpResponse {
-    match exec::exec_req(&req) {
+    match exec::exec(&req) {
         Ok(output) => HttpResponse::Ok().json(output),
         Err(err) => HttpResponse::InternalServerError().json(json!({
             "error_type": "internal",
